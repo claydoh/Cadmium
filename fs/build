@@ -34,10 +34,16 @@ else
 	esac
 fi
 
+if [ "$ROOTFS" = "arch" ]; then
+	export chroot="arch-chroot"
+else
+	export chroot="chroot"
+fi
+
 "$CADMIUMROOT/fs/$ROOTFS/build" "$DESTDIR"
 
 source "$CADMIUMROOT/fs/$ROOTFS/info"
-chroot "$DESTDIR" $FS_INST_PKG $FS_PKGS_CD_BASE
+$chroot "$DESTDIR" $FS_INST_PKG $FS_PKGS_CD_BASE
 
 if [ "$KERNEL" != libre ]; then
 	mkdir -p "$DESTDIR/lib/firmware"
@@ -53,6 +59,7 @@ cp -r "$CADMIUMROOT/fs/install" "$DESTDIR/root/install"
 # TODO: autodetect/leave choice to user
 echo "export ROOTFS=$ROOTFS" > "$DESTDIR/CdFiles/config"
 echo "export ARCH_DEB=$ARCH_DEB" >> "$DESTDIR/CdFiles/config"
+echo "export ARCH_ALARM=$ARCH_ALARM" >> "$DESTDIR/CdFiles/config"
 echo "export SUITE=$SUITE" >> "$DESTDIR/CdFiles/config"
 echo "export FILESYSTEM=$FILESYSTEM" >> "$DESTDIR/CdFiles/config"
 echo "export FLAV=$FLAV" >> "$DESTDIR/CdFiles/config"
@@ -69,4 +76,4 @@ git clone https://github.com/andersson/qrtr.git "$DESTDIR/CdFiles/qrtr"
 git clone https://github.com/Maccraft123/rmtfs.git "$DESTDIR/CdFiles/rmtfs"
 
 # get rid of any root password
-chroot "$DESTDIR" passwd -d root
+$chroot "$DESTDIR" passwd -d root

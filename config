@@ -10,8 +10,8 @@ else
 fi
 
 # RootFS type
-# One of: debian, void, void-musl, ubuntu, arch
-ROOTFS=debian
+# One of: debian, void, void-musl, arch
+ROOTFS=arch
 
 # FS type
 # f2fs, ext4
@@ -25,6 +25,9 @@ SUITE=sid
 # Which kernel should be built. disables firmware
 # kernelorg: from kernel.org libre: from linux-libre.fsfla.org
 KERNEL=kernelorg
+
+# How many threads should be used for building kernel
+THREADS="$(nproc)"
 
 # Build Cadmium inside tmpfs?
 IN_RAM=false
