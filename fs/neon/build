@@ -1,0 +1,36 @@
+#!/bin/bash
+set -x
+set -e
+
+CADMIUMROOT="$(dirname $(dirname $(dirname $(realpath $0))))"
+DESTDIR=$1
+
+. $CADMIUMROOT/config
+
+##  TODO: We can use debootstrap, but there is also an Arm64 rootfs avaialble
+
+debootstrap --include=gnupg2,libudev-dev --components=main,restricted,universe,multiverse --arch="$ARCH_DEB" jammy "$DESTDIR" http://ports.ubuntu.com/ubuntu-ports/
+
+## Adding other standard Ubuntu repos
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted universe multiverse" | chroot "$DESTDIR"  tee -a /etc/apt/sources.list
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ jammy-security main restricted universe multiverse" | chroot "$DESTDIR"  tee -a /etc/apt/sources.list
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ jammy-backports main restricted universe multiverse" | chroot "$DESTDIR" tee -a /etc/apt/sources.list
+
+
+##KDE neon's repos
+
+echo "deb http://archive.neon.kde.org/release jammy main" | chroot "$DESTDIR" tee -a /etc/apt/sources.list.d/neon.list
+echo "#deb-src http://archive.neon.kde.org/release jammy main" | chroot "$DESTDIR" tee -a /etc/apt/sources.list.d/neon.list
+#chroot "$DESTDIR" wget -qO - 'https://archive.neon.kde.org/public.key' | chroot "$DESTDIR" apt-key add -
+
+# use this until neon puts the key back in its normal spot
+#Needs updating, for correct new method of key management
+# update now that neon Jammy is official
+wget -qO - 'http://embra.edinburghlinux.co.uk/~jr/tmp/public.key' |  chroot "$DESTDIR" /usr/bin/apt-key add -
+
+# Add a newer mesa repo
+#chroot "$DESTDIR" /usr/bin/add-apt-repository -y ppa:kisak/kisak-mesa
+
+#running add-apt-repository runs apt update, so this is redundant.
+chroot "$DESTDIR" apt update
+sudo apt install neon-keyring

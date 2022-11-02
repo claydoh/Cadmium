@@ -1,0 +1,37 @@
+#!/bin/bash
+set -e
+set -x
+
+CADMIUMROOT=$(dirname $(dirname $(dirname $(realpath $0))))
+DESTDIR=$1
+
+. $CADMIUMROOT/config
+mkdir -p "$CADMIUMROOT/tmp"
+ROOTFS_TAR="https://cdimage.ubuntu.com/cdimage/ubuntu-base/$SUITE/daily/current/$SUITE-base-arm64.tar.gz"
+if [ ! -f "$CADMIUMROOT/tmp/ubuntu-rootfs-$ARCH_ALARM.tar.gz" ]; then
+	rm $CADMIUMROOT/tmp/ubuntu-rootfs-$ARCH_ALARM.tar.gz || true
+	wget "$ROOTFS_TAR" -O $CADMIUMROOT/tmp/ubuntu-rootfs-$ARCH_ALARM.tar.gz
+fi
+tar xfp $CADMIUMROOT/tmp/ubuntu-rootfs-${ARCH_ALARM}.tar.gz -C $DESTDIR
+
+##KDE neon's repos
+echo "deb [signed-by=/etc/apt/keyrings/neon_keyring.gpg] http://archive.neon.kde.org/release jammy main" | chroot "$DESTDIR" tee -a /etc/apt/sources.list.d/neon.list
+echo "#deb-src  [signed-by=/etc/apt/keyrings/neon_keyring.gpg] http://archive.neon.kde.org/release jammy main" | chroot "$DESTDIR" tee -a /etc/apt/sources.list.d/neon.list
+#chroot "$DESTDIR" wget -qO - 'https://archive.neon.kde.org/public.key' | chroot "$DESTDIR" apt-key add -
+
+# use this until neon puts the key back in its normal spot
+# Jammy needs to use gpg key, where is this?
+#apt-key is deprecated, will give warning, but will still function
+wget -qO - 'http://embra.edinburghlinux.co.uk/~jr/tmp/public.key'
+gpg --no-default-keyring --keyring ./neon_keyring.gpg --import public.key
+mv ./neon_keyring.gpg $DESTDIR/etc/apt/keyrings
+
+
+rm $DESTDIR/etc/resolv.conf # resolv.conf -> /run/systemd/resolve/resolv.conf not working in $chroot
+echo "nameserver 1.1.1.1" > $DESTDIR/etc/resolv.conf # TODO: make it configurable or fetch from host?
+
+
+chroot "$DESTDIR" /usr/bin/apt update
+#chroot $DESTDIR /usr/bin/apt install -y dialog vim f2fs-tools libudev-dev build-essential git parted
+
+

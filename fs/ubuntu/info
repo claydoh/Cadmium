@@ -1,0 +1,24 @@
+#!/bin/false
+# this is just dummy config file
+
+# basic info
+FS_FANCYNAME="Ubuntu"
+FS_HAS_OOBE="false"
+FS_INST_PKG="apt install -y"
+FS_UPDATE="apt update && apt full-upgrade"
+FS_USERGROUPS="sudo,video,audio,render"
+
+# packages:
+FS_PKGS_CD_BASE="vim network-manager dialog debootstrap parted f2fs-tools libudev-dev build-essential git ssh htop"
+FS_PKGS_CD_UI_BASE="firefox pulseaudio alsa-utils"
+
+# bootloader
+FS_PKGS_CD_BOOTFW_UBOOT="u-boot-tools"
+FS_PKGS_CD_BOOTFW_DEPTHCHARGE="$FS_PKGS_CD_BOOTFW_UBOOT vboot-utils cgpt"
+
+# ui
+FS_SUPPORTED_UIS="gnome kde phosh sway"
+FS_PKGS_CD_UI_GNOME="gnome gdm3 xwayland"
+FS_PKGS_CD_UI_KDE="plasma-desktop sddm konsole dolphin plasma-workspace-wayland kwin-wayland partitionmanager libkf5su-bin"
+FS_PKGS_CD_UI_PHOSH="xfce4-terminal phosh phosh-tablet xwayland"
+FS_PKGS_CD_UI_SWAY="sway i3status xfce4-terminal dmenu xwayland grim slurp brightnessctl"
